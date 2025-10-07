@@ -1,29 +1,61 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Trinity College Brand Colors */
+  --trinity-red: #d32f2f;
+  --trinity-red-dark: #b71c1c;
+  --trinity-red-light: #ff6659;
+  --trinity-blue: #1565c0;
+  --trinity-blue-dark: #0d47a1;
+  --trinity-blue-light: #5e92f3;
+  --trinity-gold: #ffc107;
+  --trinity-gold-dark: #ff8f00;
+  --trinity-gold-light: #fff350;
+
+  /* Neutral Colors */
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #eeeeee;
+  --gray-300: #e0e0e0;
+  --gray-400: #bdbdbd;
+  --gray-500: #9e9e9e;
+  --gray-600: #757575;
+  --gray-700: #616161;
+  --gray-800: #424242;
+  --gray-900: #212121;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--trinity-red) 0%, var(--trinity-red-dark) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--trinity-blue) 0%, var(--trinity-blue-dark) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--trinity-gold) 0%, var(--trinity-gold-dark) 100%);
+  --gradient-background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--gray-800);
+  background: var(--gradient-background);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {
@@ -32,138 +64,515 @@ body {
   }
 }
 
-/* Custom styles for Trinity Chili Cook-off */
+/* Trinity College Branding */
 .trinity-red {
-  color: #d32f2f;
+  color: var(--trinity-red);
 }
 
 .trinity-bg-red {
-  background-color: #d32f2f;
+  background: var(--gradient-primary);
 }
 
 .trinity-border-red {
-  border-color: #d32f2f;
+  border-color: var(--trinity-red);
 }
 
-.trinity-hover-red:hover {
-  background-color: #b71c1c;
+.trinity-blue {
+  color: var(--trinity-blue);
 }
 
+.trinity-bg-blue {
+  background: var(--gradient-secondary);
+}
+
+.trinity-gold {
+  color: var(--trinity-gold-dark);
+}
+
+.trinity-bg-gold {
+  background: var(--gradient-accent);
+}
+
+/* Logo Styling */
 .logo-large {
   max-width: 300px;
   height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
 }
 
+.logo-large:hover {
+  transform: scale(1.02);
+}
+
+/* Enhanced Card Design */
 .card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Enhanced Button Styles */
 .btn-primary {
-  background-color: #d32f2f;
+  background: var(--gradient-primary);
   color: white;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-primary:hover {
-  background-color: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--trinity-red-dark) 0%, var(--trinity-red) 100%);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-  padding: 12px 24px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: white;
+  color: var(--gray-700);
+  padding: 14px 28px;
+  border: 2px solid var(--gray-300);
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
-  background-color: #e0e0e0;
+  background: var(--gray-50);
+  border-color: var(--trinity-red);
+  color: var(--trinity-red);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
+/* Enhanced Form Styles */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .form-label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .form-input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 16px 20px;
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
   font-size: 16px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #d32f2f;
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+  border-color: var(--trinity-red);
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
+  transform: translateY(-1px);
 }
 
+.form-input::placeholder {
+  color: var(--gray-400);
+}
+
+/* Message Styles */
 .error-message {
-  color: #d32f2f;
+  color: var(--trinity-red);
   font-size: 14px;
-  margin-top: 5px;
+  margin-top: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .success-message {
   color: #2e7d32;
   font-size: 14px;
-  margin-top: 5px;
+  margin-top: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+/* Loading State */
 .loading {
   opacity: 0.6;
   pointer-events: none;
+  position: relative;
 }
 
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--gray-300);
+  border-top: 2px solid var(--trinity-red);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Badge Styles */
 .winner-badge {
-  background-color: #ffd700;
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: var(--gradient-accent);
+  color: var(--gray-800);
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--trinity-gold-dark);
 }
 
+/* Enhanced Slider */
 .grade-slider {
   width: 100%;
-  margin: 10px 0;
+  margin: 16px 0;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--gray-200);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
+.grade-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  border: 3px solid white;
+}
+
+.grade-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  border: 3px solid white;
+}
+
+/* Enhanced Table Styles */
 .results-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 24px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
 .results-table th,
 .results-table td {
-  padding: 12px;
+  padding: 16px 20px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .results-table th {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
 }
 
 .results-table tr:hover {
-  background-color: #f9f9f9;
+  background: var(--gray-50);
+}
+
+.results-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 3rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: 2.25rem;
+  color: var(--trinity-red);
+}
+
+h3 {
+  font-size: 1.875rem;
+  color: var(--gray-800);
+}
+
+/* Utility Classes */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 12px 20px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .logo-large {
+    max-width: 250px;
+  }
+
+  /* Mobile-specific chili bubbles */
+  .chili-bubble {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  /* Better form spacing on mobile */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 16px;
+    margin: 0 8px 16px 8px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+    padding: 0 16px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 14px 20px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .logo-large {
+    max-width: 200px;
+  }
+
+  /* Smaller chili bubbles on very small screens */
+  .chili-bubble {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  /* Stack navigation buttons vertically */
+  .nav-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Better touch targets */
+  .form-input,
+  .grade-slider {
+    min-height: 44px;
+  }
+
+  /* Reduce padding on very small screens */
+  .container {
+    padding: 0 12px;
+  }
+}
+
+/* Animation Enhancements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Focus States for Accessibility */
+.btn-primary:focus,
+.btn-secondary:focus,
+.form-input:focus {
+  outline: 2px solid var(--trinity-red);
+  outline-offset: 2px;
+}
+
+/* Custom Scrollbar Styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--trinity-red) #f1f5f9;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--trinity-red);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--trinity-red-dark);
+}
+
+/* Print Styles */
+@media print {
+  .btn-primary,
+  .btn-secondary {
+    display: none;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
 }

@@ -1,22 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, collection, addDoc, Timestamp } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Chili } from '@/types';
 import { getChilis } from '@/lib/database';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   const [chilis, setChilis] = useState<Chili[]>([]);
   const [loading, setLoading] = useState(false);
-  const [setupLoading, setSetupLoading] = useState(false);
 
   // Form state
-  const [teamName, setTeamName] = useState('');
+  const [competitorName, setCompetitorName] = useState('');
   const [chiliName, setChiliName] = useState('');
-  const [ingredients, setIngredients] = useState('');
   const [spicinessLevel, setSpicinessLevel] = useState(1);
 
   useEffect(() => {
@@ -38,18 +36,17 @@ export default function Home() {
 
     try {
       await addDoc(collection(db, 'chilis'), {
-        teamName,
+        teamName: competitorName,
         chiliName,
-        ingredients,
+        ingredients: '', // Keep for database compatibility but don't collect
         spicinessLevel,
         createdAt: Timestamp.now(),
         isWinner: false
       });
 
       // Reset form
-      setTeamName('');
+      setCompetitorName('');
       setChiliName('');
-      setIngredients('');
       setSpicinessLevel(1);
 
       // Reload chilis
@@ -63,128 +60,78 @@ export default function Home() {
     }
   };
 
-  const setupDatabase = async () => {
-    setSetupLoading(true);
-    
-    try {
-      // Sample users to create
-      const users = [
-        { email: 'jeffw412@aol.com', password: 'Chili2025', role: 'judge', displayName: 'Jeff W' },
-        { email: 'admin@trinity.com', password: 'Admin2025', role: 'admin', displayName: 'Admin' }
-      ];
 
-      // Sample chilis to create
-      const sampleChilis = [
-        { teamName: 'Fire Dragons', chiliName: 'Dragon&apos;s Breath', ingredients: 'Ghost peppers, tomatoes, onions, garlic', spicinessLevel: 5 },
-        { teamName: 'Mild Riders', chiliName: 'Comfort Classic', ingredients: 'Ground beef, kidney beans, bell peppers', spicinessLevel: 2 },
-        { teamName: 'Spice Masters', chiliName: 'Inferno Supreme', ingredients: 'Carolina Reaper, beef, beans, secret spices', spicinessLevel: 5 }
-      ];
-
-      // Create users
-      for (const userData of users) {
-        try {
-          // Create user in Firebase Auth
-          let userCredential;
-          try {
-            userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
-          } catch (authError: unknown) {
-            if (authError && typeof authError === 'object' && 'code' in authError && authError.code === 'auth/email-already-in-use') {
-              // User exists, sign in to get UID
-              userCredential = await signInWithEmailAndPassword(auth, userData.email, userData.password);
-            } else {
-              throw authError;
-            }
-          }
-
-          // Create user document in Firestore
-          await setDoc(doc(db, 'users', userCredential.user.uid), {
-            email: userData.email,
-            role: userData.role,
-            displayName: userData.displayName,
-            createdAt: Timestamp.now()
-          });
-        } catch (error) {
-          console.error(`Error creating user ${userData.email}:`, error);
-        }
-      }
-
-      // Create sample chilis
-      for (const chili of sampleChilis) {
-        await addDoc(collection(db, 'chilis'), {
-          teamName: chili.teamName,
-          chiliName: chili.chiliName,
-          ingredients: chili.ingredients,
-          spicinessLevel: chili.spicinessLevel,
-          createdAt: Timestamp.now(),
-          isWinner: false
-        });
-      }
-
-      alert('🎉 Database setup completed successfully! You can now:\n\n• Register chilis\n• Login as judge: jeffw412@aol.com / Chili2025\n• Login as admin: admin@trinity.com / Admin2025');
-    } catch (error: unknown) {
-      console.error('Setup error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      alert(`Setup failed: ${errorMessage}`);
-    } finally {
-      setSetupLoading(false);
-    }
-  };
 
   const winner = chilis.find(chili => chili.isWinner);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen py-4 md:py-12">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 container">
         {/* Header */}
-        <div className="text-center mb-8">
-          <img 
-            src="/TC+Logo+with+lettering+extra+whitespace.webp" 
-            alt="Trinity Logo" 
-            className="logo-large mx-auto mb-6"
-          />
-          <h1 className="text-4xl font-bold trinity-red mb-4">🌶️ Trinity Chili Cook-off 🌶️</h1>
-          <p className="text-gray-600 text-lg">Register your chili and compete for the championship!</p>
+        <div className="text-center mb-16">
+          <div className="hover-lift">
+            <Image
+              src="/TC+Logo+with+lettering+extra+whitespace.webp"
+              alt="Trinity Logo"
+              width={300}
+              height={180}
+              className="logo-large mx-auto mb-8"
+            />
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">🌶️ Trinity Chili Cook-off 2025 🌶️</h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
+            Join the ultimate culinary competition! Register your signature chili recipe and compete for the championship title.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <div className="bg-white px-4 py-2 md:px-6 md:py-3 rounded-full shadow-md hover-lift">
+              <span className="text-trinity-red font-semibold text-sm md:text-base">🏆 Annual Competition</span>
+            </div>
+            <div className="bg-white px-4 py-2 md:px-6 md:py-3 rounded-full shadow-md hover-lift">
+              <span className="text-trinity-blue font-semibold text-sm md:text-base">🌶️ All Spice Levels</span>
+            </div>
+            <div className="bg-white px-4 py-2 md:px-6 md:py-3 rounded-full shadow-md hover-lift">
+              <span className="text-trinity-gold font-semibold text-sm md:text-base">🥇 Prizes Awarded</span>
+            </div>
+          </div>
         </div>
 
         {/* Winner Announcement */}
         {winner && (
-          <div className="card mb-8 text-center bg-yellow-50 border-2 border-yellow-300">
-            <h2 className="text-2xl font-bold text-yellow-800 mb-2">🏆 WINNER ANNOUNCED! 🏆</h2>
-            <p className="text-xl text-yellow-700">
-              <strong>{winner.teamName}</strong> wins with <strong>&quot;{winner.chiliName}&quot;</strong>!
-            </p>
+          <div className="card mb-12 text-center trinity-bg-gold glass-effect border-4 border-yellow-400">
+            <div className="text-6xl mb-4">🏆</div>
+            <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-lg">CHAMPION ANNOUNCED!</h2>
+            <div className="bg-white bg-opacity-90 rounded-xl p-6 mx-auto max-w-md">
+              <p className="text-2xl font-bold text-gray-800">
+                <span className="text-trinity-red">{winner.teamName}</span>
+              </p>
+              <p className="text-lg text-gray-600 mt-2">
+                wins with <strong className="text-trinity-blue">&quot;{winner.chiliName}&quot;</strong>!
+              </p>
+            </div>
           </div>
         )}
 
-        {/* Quick Setup Button */}
-        <div className="card mb-8 text-center bg-blue-50 border-2 border-blue-300">
-          <h2 className="text-xl font-bold text-blue-800 mb-4">🚀 Quick Setup</h2>
-          <p className="text-blue-700 mb-4">
-            Set up sample data and user accounts for testing the application.
-          </p>
-          <button 
-            onClick={setupDatabase}
-            disabled={setupLoading}
-            className="btn-primary bg-blue-600 hover:bg-blue-700"
-          >
-            {setupLoading ? 'Setting up...' : 'Setup Database'}
-          </button>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-12">
           {/* Registration Form */}
-          <div className="card">
-            <h2 className="text-2xl font-bold trinity-red mb-6">Register Your Chili</h2>
-            <form onSubmit={handleSubmit}>
+          <div className="card hover-lift fade-in">
+            <div className="text-center mb-8">
+              <div className="text-4xl mb-4">🌶️</div>
+              <h2 className="text-3xl font-bold mb-2">Register Your Chili</h2>
+              <p className="text-gray-600">Submit your signature recipe to the competition</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="form-group">
-                <label className="form-label">Team Name</label>
+                <label className="form-label">Competitor&apos;s Name</label>
                 <input
                   type="text"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
+                  value={competitorName}
+                  onChange={(e) => setCompetitorName(e.target.value)}
                   className="form-input"
                   required
-                  placeholder="Enter your team name"
+                  placeholder="Enter your name"
                 />
               </div>
 
@@ -201,19 +148,7 @@ export default function Home() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Ingredients</label>
-                <textarea
-                  value={ingredients}
-                  onChange={(e) => setIngredients(e.target.value)}
-                  className="form-input"
-                  rows={3}
-                  required
-                  placeholder="List your main ingredients"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Spiciness Level (1-5)</label>
+                <label className="form-label">Spiciness Level</label>
                 <input
                   type="range"
                   min="1"
@@ -222,60 +157,111 @@ export default function Home() {
                   onChange={(e) => setSpicinessLevel(parseInt(e.target.value))}
                   className="grade-slider"
                 />
-                <div className="text-center text-sm text-gray-600">
-                  {spicinessLevel === 1 && '🌶️ Mild'}
-                  {spicinessLevel === 2 && '🌶️🌶️ Medium'}
-                  {spicinessLevel === 3 && '🌶️🌶️🌶️ Hot'}
-                  {spicinessLevel === 4 && '🌶️🌶️🌶️🌶️ Very Hot'}
-                  {spicinessLevel === 5 && '🌶️🌶️🌶️🌶️🌶️ EXTREME!'}
+                <div className="text-center mt-4 p-4 bg-gray-50 rounded-xl">
+                  <div className="text-2xl mb-2">
+                    {spicinessLevel === 1 && '🌶️'}
+                    {spicinessLevel === 2 && '🌶️🌶️'}
+                    {spicinessLevel === 3 && '🌶️🌶️🌶️'}
+                    {spicinessLevel === 4 && '🌶️🌶️🌶️🌶️'}
+                    {spicinessLevel === 5 && '🌶️🌶️🌶️🌶️🌶️'}
+                  </div>
+                  <div className="font-semibold text-gray-700">
+                    {spicinessLevel === 1 && 'Mild & Gentle'}
+                    {spicinessLevel === 2 && 'Medium Heat'}
+                    {spicinessLevel === 3 && 'Hot & Spicy'}
+                    {spicinessLevel === 4 && 'Very Hot'}
+                    {spicinessLevel === 5 && 'EXTREME FIRE!'}
+                  </div>
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
-                className="btn-primary w-full"
+                className={`btn-primary w-full text-lg py-4 ${loading ? 'loading' : ''}`}
               >
-                {loading ? 'Registering...' : 'Register Chili'}
+                {loading ? 'Registering Your Chili...' : '🚀 Register My Chili'}
               </button>
             </form>
           </div>
 
           {/* Registered Chilis */}
-          <div className="card">
-            <h2 className="text-2xl font-bold trinity-red mb-6">Registered Chilis</h2>
+          <div className="card hover-lift fade-in">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-4">🌶️</div>
+              <h2 className="text-2xl font-bold mb-2">Registered Chilis</h2>
+              <p className="text-gray-600">See who&apos;s competing in the cook-off</p>
+              <div className="mt-4 text-sm text-gray-500">
+                <span className="font-semibold">{chilis.length}</span> chilis registered
+              </div>
+            </div>
+
             {chilis.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No chilis registered yet. Be the first!</p>
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🍽️</div>
+                <p className="text-gray-500 text-lg">No chilis registered yet!</p>
+                <p className="text-gray-400">Be the first to enter the competition</p>
+              </div>
             ) : (
-              <div className="space-y-4">
-                {chilis.map((chili) => (
-                  <div key={chili.id} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-lg">{chili.chiliName}</h3>
-                      {chili.isWinner && <span className="winner-badge">🏆 WINNER</span>}
+              <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-trinity-red scrollbar-track-gray-100 px-2">
+                <div className="flex flex-wrap gap-3 py-2">
+                  {chilis.map((chili, index) => (
+                    <div
+                      key={chili.id}
+                      className={`
+                        chili-bubble relative inline-flex items-center px-4 py-3 rounded-full text-sm font-medium
+                        transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer
+                        ${chili.isWinner
+                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 shadow-lg ring-2 ring-yellow-300'
+                          : 'bg-gradient-to-r from-trinity-red to-red-500 text-white shadow-md hover:shadow-lg'
+                        }
+                      `}
+                    >
+                      {chili.isWinner && (
+                        <span className="absolute -top-2 -right-2 text-lg">🏆</span>
+                      )}
+                      <span className="mr-2 text-xs opacity-75">#{index + 1}</span>
+                      <span className="font-semibold">{chili.chiliName}</span>
+                      <div className="ml-2 flex">
+                        {'🌶️'.repeat(Math.min(chili.spicinessLevel, 3))}
+                      </div>
                     </div>
-                    <p className="text-gray-600 mb-1"><strong>Team:</strong> {chili.teamName}</p>
-                    <p className="text-gray-600 mb-2"><strong>Ingredients:</strong> {chili.ingredients}</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">
-                        {'🌶️'.repeat(chili.spicinessLevel)} Spice Level {chili.spicinessLevel}
-                      </span>
-                    </div>
+                  ))}
+                </div>
+
+                {chilis.length > 8 && (
+                  <div className="text-center mt-4 text-xs text-gray-500">
+                    Scroll to see more chilis
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
         </div>
 
         {/* Navigation Links */}
-        <div className="text-center mt-8 space-x-4">
-          <Link href="/judge/login" className="btn-secondary">
-            Judge Login
-          </Link>
-          <Link href="/admin/login" className="btn-secondary">
-            Admin Login
-          </Link>
+        <div className="text-center mt-16">
+          <div className="card glass-effect max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold mb-6 text-gray-800">Competition Officials</h3>
+            <p className="text-gray-600 mb-8">Access the judging and administration portals</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/judge/login" className="btn-secondary hover-lift">
+                <span className="text-2xl mr-2">👨‍⚖️</span>
+                Judge Portal
+              </Link>
+              <Link href="/admin/login" className="btn-primary hover-lift">
+                <span className="text-2xl mr-2">⚙️</span>
+                Admin Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-16 py-8 border-t border-gray-200">
+          <p className="text-gray-500">
+            © 2025 Trinity College Chili Cook-off • Made with ❤️ and 🌶️
+          </p>
         </div>
       </div>
     </div>
