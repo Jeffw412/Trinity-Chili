@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,15 +26,7 @@ export default function JudgeDashboard() {
   const { user, signOut } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/judge/login');
-      return;
-    }
-    loadData();
-  }, [user, router]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [chilisData, gradesData] = await Promise.all([
@@ -49,7 +41,15 @@ export default function JudgeDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/judge/login');
+      return;
+    }
+    loadData();
+  }, [user, router, loadData]);
 
   const handleChiliSelect = (chili: Chili) => {
     setSelectedChili(chili);

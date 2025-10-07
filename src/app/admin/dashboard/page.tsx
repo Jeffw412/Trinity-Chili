@@ -26,7 +26,8 @@ export default function AdminDashboard() {
   const [results, setResults] = useState<ChiliWithResults[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'chilis' | 'results' | 'add'>('overview');
+  type TabType = 'overview' | 'chilis' | 'results' | 'add';
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -212,7 +213,7 @@ export default function AdminDashboard() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as TabType)}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === tab.id
                     ? 'bg-trinity-red text-white shadow-lg'
