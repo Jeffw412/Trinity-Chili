@@ -1,13 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  trailingSlash: true,
+  // Remove static export for Vercel deployment
+  // output: 'export',
+  // trailingSlash: true,
   images: {
     unoptimized: true
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/Trinity-Chili' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/Trinity-Chili/' : '',
+  // Remove basePath for Vercel deployment
+  // basePath: process.env.NODE_ENV === 'production' ? '/Trinity-Chili' : '',
+  // assetPrefix: process.env.NODE_ENV === 'production' ? '/Trinity-Chili/' : '',
 };
 
 export default nextConfig;
