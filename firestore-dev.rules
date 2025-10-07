@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // DEVELOPMENT RULES - More permissive for testing
+    // Replace with production rules after setup is complete
+    
+    // Chilis collection - allow all operations for development
+    match /chilis/{chiliId} {
+      allow read, write: if true;
+    }
+    
+    // Grades collection - allow authenticated users
+    match /grades/{gradeId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Users collection - allow authenticated users to read their own data
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
