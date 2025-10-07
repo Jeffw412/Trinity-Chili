@@ -9,7 +9,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { getUser } from '@/lib/database';
-import { User, UserRole } from '@/types';
+import { User } from '@/types';
 
 interface AuthContextType {
   user: User | null;

@@ -22,8 +22,9 @@ export default function SetupPage() {
       const { setupFirebaseDatabase } = await import('@/lib/setup');
       const result = await setupFirebaseDatabase();
       setSetupResult(result.success ? 'Setup completed successfully!' : `Setup failed: ${result.message}`);
-    } catch (error: any) {
-      setSetupResult(`Setup failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setSetupResult(`Setup failed: ${errorMessage}`);
     } finally {
       setSetupLoading(false);
     }

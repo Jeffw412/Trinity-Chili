@@ -76,14 +76,15 @@ export async function setupFirebaseDatabase(): Promise<{ success: boolean; messa
         try {
           userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
           details.push(`✅ Created auth user: ${userData.email}`);
-        } catch (authError: any) {
-          if (authError.code === 'auth/email-already-in-use') {
+        } catch (authError: unknown) {
+          if (authError && typeof authError === 'object' && 'code' in authError && authError.code === 'auth/email-already-in-use') {
             // User already exists, that's fine
             details.push(`ℹ️ Auth user already exists: ${userData.email}`);
             // Sign in to get the user object
             userCredential = await signInWithEmailAndPassword(auth, userData.email, userData.password);
           } else {
-            details.push(`❌ Auth error for ${userData.email}: ${authError.message}`);
+            const errorMessage = authError instanceof Error ? authError.message : 'Unknown auth error';
+            details.push(`❌ Auth error for ${userData.email}: ${errorMessage}`);
             continue;
           }
         }
@@ -103,8 +104,9 @@ export async function setupFirebaseDatabase(): Promise<{ success: boolean; messa
         // Sign out after creating each user
         await signOut(auth);
         
-      } catch (userError: any) {
-        details.push(`❌ Error processing ${userData.email}: ${userError.message}`);
+      } catch (userError: unknown) {
+        const errorMessage = userError instanceof Error ? userError.message : 'Unknown error';
+        details.push(`❌ Error processing ${userData.email}: ${errorMessage}`);
       }
     }
 
@@ -141,11 +143,12 @@ export async function setupFirebaseDatabase(): Promise<{ success: boolean; messa
       details
     };
 
-  } catch (error: any) {
-    details.push(`❌ Setup failed: ${error.message}`);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    details.push(`❌ Setup failed: ${errorMessage}`);
     return {
       success: false,
-      message: `Setup failed: ${error.message}`,
+      message: `Setup failed: ${errorMessage}`,
       details
     };
   }
@@ -163,7 +166,7 @@ export async function checkDatabaseStatus(): Promise<{ isSetup: boolean; userCou
       userCount: usersSnapshot.size,
       chiliCount: chilisSnapshot.size
     };
-  } catch (error) {
+  } catch {
     return {
       isSetup: false,
       userCount: 0,
