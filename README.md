@@ -1,98 +1,163 @@
-# 🌶️ Trinity Chili Cook-off
+# Trinity Chili Cookoff 2025
 
-A Next.js application for managing chili cook-off competitions with Firebase backend.
+A comprehensive web application for managing the Trinity Chili Cookoff 2025 competition with public registration, judge grading, and admin management.
 
-## 🚀 Features
+## Features
 
-- ✅ **Chili Registration System** - Participants can register their chili entries
-- ✅ **Judge Login & Grading** - Secure judge authentication and grading interface
-- ✅ **Admin Dashboard** - Administrative controls and oversight
-- ✅ **Real-time Results** - Live updates and winner announcements
-- ✅ **Firebase Integration** - Firestore database and authentication
+### Public Landing Page
+- **Registration Form**: Contestants can register their chili with name, contestant name, and spiciness level
+- **Public Chili List**: Displays all registered chilis (contestant names hidden for anonymity)
+- **Winner Display**: Shows the winning chili with trophy icon when declared
+- **Judge Login**: Access point for judges to grade chilis
 
-## 🛠️ Tech Stack
+### Judge Portal
+- **Secure Authentication**: Firebase-based login system
+- **Chili Grading**: Grade chilis on 5 categories (Taste, Presentation, Aroma, Uniqueness, Texture)
+- **Score Management**: Edit previously submitted grades
+- **Real-time Updates**: See new chilis as they're registered
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Backend**: Firebase (Firestore, Authentication)
-- **Deployment**: GitHub Pages with GitHub Actions
+### Admin Portal
+- **Full Management**: Add/remove chili entries manually
+- **Results Calculation**: View rankings based on total scores across all judges
+- **Winner Declaration**: Declare and publish winners to the main page
+- **Complete Visibility**: See contestant names and all grading data
 
-## 📱 Live Demo
+## Technology Stack
 
-Visit the live application: [Trinity Chili Cook-off](https://jeffw412.github.io/Trinity-Chili/)
+- **Frontend**: Next.js 15 with TypeScript and Tailwind CSS
+- **Backend**: Firebase (Firestore Database + Authentication)
+- **Real-time**: Firestore real-time listeners
+- **Security**: Row Level Security with Firebase Security Rules
 
-## 🏃‍♂️ Quick Start
+## Setup Instructions
 
-### Prerequisites
-- Node.js 18+
-- Firebase project set up
+### 1. Prerequisites
+- Node.js 18+ installed
+- Firebase project set up (already configured)
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/Jeffw412/Trinity-Chili.git
-cd Trinity-Chili/trinity-chili-cookoff
-```
-
-2. Install dependencies:
+### 2. Installation
 ```bash
 npm install
 ```
 
-3. Set up Firebase configuration in your project
+### 3. Firebase Configuration
+The Firebase configuration is already set up in `src/lib/firebase.ts`. You need to:
 
-4. Run the development server:
+1. Go to your Firebase Console: https://console.firebase.google.com/
+2. Select your project: `trinity-chili-cook-off`
+3. Set up Firestore Database:
+   - Go to Firestore Database
+   - Create database in production mode
+   - Copy the security rules from `firestore.rules` and paste them in the Rules tab
+
+### 4. Create Admin and Judge Users
+In Firebase Console:
+1. Go to Authentication > Users
+2. Add users manually with email/password
+3. After creating users, add them to the `users` collection in Firestore:
+
+```javascript
+// Example user document in Firestore 'users' collection
+{
+  email: "admin@trinity.com",
+  role: "admin",
+  displayName: "Admin User",
+  createdAt: timestamp
+}
+
+// Judge user example
+{
+  email: "judge1@trinity.com",
+  role: "judge",
+  displayName: "Judge 1",
+  createdAt: timestamp
+}
+```
+
+### 5. Run the Application
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+The application will be available at `http://localhost:3000`
 
-## 🔧 Firebase Setup
+## User Roles & Access
 
-Follow the instructions in `QUICK_SETUP.md` for complete Firebase configuration:
+### Public Users
+- Can register chilis
+- Can view public chili list (names only)
+- Can see winner when declared
 
-1. Create Firestore database
-2. Enable Authentication
-3. Create user accounts
-4. Set up security rules
+### Judges
+- Login at `/judge/login`
+- Access judge dashboard at `/judge/dashboard`
+- Grade chilis on 5-point scale across 5 categories
+- Edit their own grades
+- Cannot see contestant names during grading
 
-## 📦 Deployment
+### Admins
+- Login at `/admin/login`
+- Access admin dashboard at `/admin/dashboard`
+- Full CRUD operations on chilis
+- View complete results and rankings
+- Declare winners
+- Can also access judge portal
 
-The application automatically deploys to GitHub Pages when changes are pushed to the main branch.
+## Database Schema
 
-### Manual Deployment
+### Collections
 
-```bash
-npm run build
+#### `chilis`
+```typescript
+{
+  id: string,
+  name: string,
+  contestantName: string,
+  spicinessLevel: 'Mild' | 'Medium' | 'Hot' | 'Extra Hot',
+  createdAt: Date,
+  isWinner: boolean
+}
 ```
 
-## 🏗️ Project Structure
-
+#### `grades`
+```typescript
+{
+  id: string,
+  chiliId: string,
+  judgeId: string,
+  taste: number (1-5),
+  presentation: number (1-5),
+  aroma: number (1-5),
+  uniqueness: number (1-5),
+  texture: number (1-5),
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
-trinity-chili-cookoff/
-├── src/
-│   ├── app/           # Next.js app router pages
-│   ├── components/    # Reusable components
-│   ├── contexts/      # React contexts
-│   ├── lib/          # Utility functions
-│   └── types/        # TypeScript type definitions
-├── public/           # Static assets
-└── firebase.json     # Firebase configuration
+
+#### `users`
+```typescript
+{
+  uid: string,
+  email: string,
+  role: 'judge' | 'admin',
+  displayName: string,
+  createdAt: Date
+}
 ```
 
-## 🤝 Contributing
+## Security Features
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+- **Authentication**: Firebase Auth with email/password
+- **Authorization**: Role-based access control (public, judge, admin)
+- **Data Privacy**: Contestant names hidden from judges during grading
+- **Real-time Security**: Firestore security rules enforce access control
+- **Input Validation**: Form validation on both client and server side
 
-## 📄 License
+## Scoring System
 
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For setup help, refer to the `QUICK_SETUP.md` file or create an issue in the repository.
+- Each chili is graded on 5 categories: Taste, Presentation, Aroma, Uniqueness, Texture
+- Each category scored 1-5 points
+- Maximum possible score: 25 points per judge
+- Final ranking based on total points across all judges
+- Winner declared by admin and displayed on main page
