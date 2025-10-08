@@ -93,7 +93,7 @@ export default function JudgeDashboard() {
 
     try {
       const existingGrade = grades.find(grade => grade.chiliId === selectedChili.id);
-      
+
       if (existingGrade) {
         // Update existing grade
         await updateGrade(existingGrade.id, gradeForm);
@@ -110,7 +110,7 @@ export default function JudgeDashboard() {
       await loadData();
       setSelectedChili(null);
       setShowGradingModal(false);
-      
+
     } catch (error) {
       console.error('Error submitting grade:', error);
       setError('Failed to submit grade. Please try again.');
