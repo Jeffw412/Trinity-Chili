@@ -13,6 +13,7 @@ export default function JudgeDashboard() {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChili, setSelectedChili] = useState<Chili | null>(null);
+  const [showGradingModal, setShowGradingModal] = useState(false);
   const [gradeForm, setGradeForm] = useState<GradeFormData>({
     taste: 3,
     presentation: 3,
@@ -54,7 +55,8 @@ export default function JudgeDashboard() {
   const handleChiliSelect = (chili: Chili) => {
     setSelectedChili(chili);
     setError('');
-    
+    setShowGradingModal(true);
+
     // Check if this chili has already been graded by this judge
     const existingGrade = grades.find(grade => grade.chiliId === chili.id);
     if (existingGrade) {
@@ -107,6 +109,7 @@ export default function JudgeDashboard() {
       // Reload grades
       await loadData();
       setSelectedChili(null);
+      setShowGradingModal(false);
       
     } catch (error) {
       console.error('Error submitting grade:', error);
@@ -123,6 +126,12 @@ export default function JudgeDashboard() {
   const getTotalScore = () => {
     return gradeForm.taste + gradeForm.presentation + gradeForm.aroma + 
            gradeForm.uniqueness + gradeForm.texture;
+  };
+
+  const handleCloseModal = () => {
+    setShowGradingModal(false);
+    setSelectedChili(null);
+    setError('');
   };
 
   const handleSignOut = async () => {
@@ -142,8 +151,9 @@ export default function JudgeDashboard() {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-6">
+    <>
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="card mb-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
@@ -238,68 +248,13 @@ export default function JudgeDashboard() {
             </div>
           </div>
 
-          {/* Grading Form */}
+          {/* Instructions */}
           <div className="card">
-            {selectedChili ? (
-              <>
-                <div className="text-center mb-6">
-                  <div className="text-4xl mb-4">📝</div>
-                  <h2 className="text-2xl font-bold mb-2">Grade Chili</h2>
-                  <p className="text-gray-600">Rate each category from 1-5</p>
-                  <h3 className="text-xl font-semibold text-trinity-red mt-4">{selectedChili.chiliName}</h3>
-                </div>
-
-                <div className="space-y-6">
-                  {Object.entries(gradeForm).map(([category, value]) => (
-                    <div key={category} className="form-group">
-                      <label className="form-label capitalize">
-                        {category === 'uniqueness' ? 'Uniqueness' : category}
-                      </label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        value={value}
-                        onChange={(e) => handleGradeChange(category as keyof GradeFormData, parseInt(e.target.value))}
-                        className="grade-slider"
-                      />
-                      <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <span>Poor (1)</span>
-                        <span className="font-semibold text-lg text-trinity-red">{value}</span>
-                        <span>Excellent (5)</span>
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="bg-gray-50 p-6 rounded-xl text-center">
-                    <p className="text-lg font-semibold text-gray-700 mb-2">Total Score</p>
-                    <p className="text-4xl font-bold text-trinity-red">{getTotalScore()}/25</p>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setSelectedChili(null)}
-                      className="btn-secondary flex-1"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSubmitGrade}
-                      disabled={submitting}
-                      className={`btn-primary flex-1 ${submitting ? 'loading' : ''}`}
-                    >
-                      {submitting ? 'Submitting...' : grades.find(g => g.chiliId === selectedChili.id) ? 'Update Grade' : 'Submit Grade'}
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📝</div>
-                <h2 className="text-2xl font-bold mb-4 text-gray-800">Select a Chili to Grade</h2>
-                <p className="text-gray-600">Choose a chili from the list to start grading</p>
-              </div>
-            )}
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📝</div>
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">Ready to Judge</h2>
+              <p className="text-gray-600">Click on any chili above to open the grading form</p>
+            </div>
           </div>
         </div>
 
@@ -326,7 +281,92 @@ export default function JudgeDashboard() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Grading Modal - Outside main container for proper overlay */}
+      {showGradingModal && selectedChili && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50 overflow-y-auto"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mt-8 mb-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Grade Chili</h2>
+                  <h3 className="text-xl font-semibold text-trinity-red">{selectedChili.chiliName}</h3>
+                </div>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <p className="text-gray-600 mb-6 text-center">Rate each category from 1-5</p>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-6">
+                {Object.entries(gradeForm).map(([category, value]) => (
+                  <div key={category} className="form-group">
+                    <label className="form-label capitalize">
+                      {category === 'uniqueness' ? 'Uniqueness' : category}
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      value={value}
+                      onChange={(e) => handleGradeChange(category as keyof GradeFormData, parseInt(e.target.value))}
+                      className="grade-slider"
+                    />
+                    <div className="flex justify-between text-sm text-gray-600 mt-2">
+                      <span>Poor (1)</span>
+                      <span className="font-semibold text-lg text-trinity-red">{value}</span>
+                      <span>Excellent (5)</span>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="bg-gray-50 p-6 rounded-xl text-center">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">Total Score</p>
+                  <p className="text-4xl font-bold text-trinity-red">{getTotalScore()}/25</p>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <button
+                    onClick={handleCloseModal}
+                    className="btn-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitGrade}
+                    disabled={submitting}
+                    className={`btn-primary flex-1 ${submitting ? 'loading' : ''}`}
+                  >
+                    {submitting ? 'Submitting...' : grades.find(g => g.chiliId === selectedChili.id) ? 'Update Grade' : 'Submit Grade'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
