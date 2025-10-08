@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "app/**/*.js": {
-      "runtime": "@vercel/node"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -21,12 +16,6 @@
           "value": "1; mode=block"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
     }
   ]
 }
