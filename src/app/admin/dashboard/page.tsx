@@ -33,9 +33,8 @@ export default function AdminDashboard() {
 
   // Add Chili Form State
   const [newChili, setNewChili] = useState({
-    teamName: '',
+    competitorName: '',
     chiliName: '',
-    ingredients: '',
     spicinessLevel: 3
   });
   const [submitting, setSubmitting] = useState(false);
@@ -95,9 +94,8 @@ export default function AdminDashboard() {
       setSubmitting(true);
       await addChili(newChili);
       setNewChili({
-        teamName: '',
+        competitorName: '',
         chiliName: '',
-        ingredients: '',
         spicinessLevel: 3
       });
       await loadData();
@@ -289,7 +287,7 @@ export default function AdminDashboard() {
                         </div>
                         <div>
                           <h3 className="font-bold text-xl text-gray-800">{chili.chiliName}</h3>
-                          <p className="text-trinity-blue font-medium">{chili.teamName}</p>
+                          <p className="text-trinity-blue font-medium">{chili.competitorName}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -324,10 +322,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     
-                    <div>
-                      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Ingredients</p>
-                      <p className="text-gray-700 leading-relaxed">{chili.ingredients}</p>
-                    </div>
+
                   </div>
                 );
               })}
@@ -364,7 +359,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <h3 className="font-bold text-xl">{chili.chiliName}</h3>
-                        <p className="text-gray-600">{chili.teamName}</p>
+                        <p className="text-gray-600">{chili.competitorName}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -405,14 +400,14 @@ export default function AdminDashboard() {
 
             <form onSubmit={handleAddChili} className="space-y-6">
               <div className="form-group">
-                <label className="form-label">Team Name</label>
+                <label className="form-label">Competitor&apos;s Name</label>
                 <input
                   type="text"
-                  value={newChili.teamName}
-                  onChange={(e) => setNewChili(prev => ({ ...prev, teamName: e.target.value }))}
+                  value={newChili.competitorName}
+                  onChange={(e) => setNewChili(prev => ({ ...prev, competitorName: e.target.value }))}
                   className="form-input"
                   required
-                  placeholder="Enter team name"
+                  placeholder="Enter competitor's name"
                 />
               </div>
 
@@ -428,17 +423,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Ingredients</label>
-                <textarea
-                  value={newChili.ingredients}
-                  onChange={(e) => setNewChili(prev => ({ ...prev, ingredients: e.target.value }))}
-                  className="form-input"
-                  rows={4}
-                  required
-                  placeholder="List the main ingredients..."
-                />
-              </div>
+
 
               <div className="form-group">
                 <label className="form-label">Spiciness Level</label>

@@ -27,22 +27,28 @@ export const defaultUsers: SetupUser[] = [
     displayName: 'Jeff W'
   },
   {
-    email: 'admin@trinity.com',
-    role: 'admin', 
-    password: 'Admin2025',
-    displayName: 'Trinity Admin'
+    email: 'ckernyl@gmail.com',
+    role: 'judge',
+    password: 'Chili2025',
+    displayName: 'C. Kernyl'
   },
   {
-    email: 'judge1@trinity.com',
+    email: 'amberkern317@gmail.com',
     role: 'judge',
-    password: 'Judge2025',
-    displayName: 'Judge 1'
+    password: 'Chili2025',
+    displayName: 'Amber Kern'
   },
   {
-    email: 'judge2@trinity.com',
+    email: 'matthew.c.weiser@gmail.com',
     role: 'judge',
-    password: 'Judge2025',
-    displayName: 'Judge 2'
+    password: 'Chili2025',
+    displayName: 'Matthew Weiser'
+  },
+  {
+    email: 'jenn.heidy@gmail.com',
+    role: 'admin',
+    password: 'Chili2025',
+    displayName: 'Jenn Heidy'
   }
 ];
 
@@ -149,6 +155,88 @@ export async function setupFirebaseDatabase(): Promise<{ success: boolean; messa
     return {
       success: false,
       message: `Setup failed: ${errorMessage}`,
+      details
+    };
+  }
+}
+
+export async function createAdminUser(): Promise<{success: boolean; message: string; details: string[]}> {
+  const details: string[] = [];
+
+  try {
+    details.push('Creating admin user...');
+
+    const adminData = {
+      email: 'jenn.heidy@gmail.com',
+      password: 'Chili2025',
+      role: 'admin' as const,
+      displayName: 'Jenn Heidy'
+    };
+
+    let userCredential;
+
+    try {
+      // Try to create new user
+      details.push(`Creating new auth user: ${adminData.email}`);
+      userCredential = await createUserWithEmailAndPassword(auth, adminData.email, adminData.password);
+      details.push(`✅ Created new auth user: ${adminData.email}`);
+    } catch (authError: unknown) {
+      if (authError instanceof Error && authError.message.includes('email-already-in-use')) {
+        details.push(`ℹ️ Auth user already exists: ${adminData.email}`);
+        // Try to sign in with the credentials we expect
+        try {
+          userCredential = await signInWithEmailAndPassword(auth, adminData.email, adminData.password);
+          details.push(`✅ Successfully signed in existing user: ${adminData.email}`);
+        } catch (signInError: unknown) {
+          const errorMessage = signInError instanceof Error ? signInError.message : 'Unknown error';
+          details.push(`❌ Cannot sign in with expected credentials: ${errorMessage}`);
+          details.push(`⚠️ Admin user exists but password doesn't match. Please reset password in Firebase Console.`);
+          return {
+            success: false,
+            message: 'Admin user exists but password mismatch. Please reset password manually.',
+            details
+          };
+        }
+      } else {
+        const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
+        details.push(`❌ Auth error for ${adminData.email}: ${errorMessage}`);
+        return {
+          success: false,
+          message: `Failed to create admin user: ${errorMessage}`,
+          details
+        };
+      }
+    }
+
+    // Create/update user document in Firestore
+    const userDoc = doc(db, 'users', userCredential.user.uid);
+    await setDoc(userDoc, {
+      email: adminData.email,
+      role: adminData.role,
+      displayName: adminData.displayName,
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+
+    details.push(`✅ Created/updated Firestore document for: ${adminData.email}`);
+
+    // Sign out after creating user
+    await signOut(auth);
+
+    details.push('🎉 Admin user setup completed successfully!');
+
+    return {
+      success: true,
+      message: 'Admin user created successfully!',
+      details
+    };
+
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    details.push(`❌ Setup failed: ${errorMessage}`);
+    return {
+      success: false,
+      message: `Admin user creation failed: ${errorMessage}`,
       details
     };
   }

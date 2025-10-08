@@ -109,14 +109,6 @@ export default function AdminLogin() {
                   Back to Competition
                 </Link>
               </div>
-
-              <div className="text-center bg-blue-50 p-6 rounded-xl">
-                <p className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials</p>
-                <div className="space-y-1 text-sm text-blue-600">
-                  <p><strong>Email:</strong> admin@trinity.com</p>
-                  <p><strong>Password:</strong> Admin2025</p>
-                </div>
-              </div>
             </form>
           </div>
         </div>

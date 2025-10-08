@@ -36,9 +36,8 @@ export default function Home() {
 
     try {
       await addDoc(collection(db, 'chilis'), {
-        teamName: competitorName,
+        competitorName,
         chiliName,
-        ingredients: '', // Keep for database compatibility but don't collect
         spicinessLevel,
         createdAt: Timestamp.now(),
         isWinner: false
@@ -102,7 +101,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-lg">CHAMPION ANNOUNCED!</h2>
             <div className="bg-white bg-opacity-90 rounded-xl p-6 mx-auto max-w-md">
               <p className="text-2xl font-bold text-gray-800">
-                <span className="text-trinity-red">{winner.teamName}</span>
+                <span className="text-trinity-red">Anonymous Chef</span>
               </p>
               <p className="text-lg text-gray-600 mt-2">
                 wins with <strong className="text-trinity-blue">&quot;{winner.chiliName}&quot;</strong>!
@@ -203,35 +202,78 @@ export default function Home() {
                 <p className="text-gray-400">Be the first to enter the competition</p>
               </div>
             ) : (
-              <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-trinity-red scrollbar-track-gray-100 px-2">
-                <div className="flex flex-wrap gap-3 py-2">
+              <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-trinity-red scrollbar-track-gray-100 pr-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
                   {chilis.map((chili, index) => (
                     <div
                       key={chili.id}
                       className={`
-                        chili-bubble relative inline-flex items-center px-4 py-3 rounded-full text-sm font-medium
-                        transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer
+                        group relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer
+                        hover:scale-[1.02] hover:shadow-xl transform-gpu
                         ${chili.isWinner
-                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 shadow-lg ring-2 ring-yellow-300'
-                          : 'bg-gradient-to-r from-trinity-red to-red-500 text-white shadow-md hover:shadow-lg'
+                          ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-300 shadow-lg ring-2 ring-yellow-200'
+                          : 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-trinity-red hover:shadow-lg'
                         }
                       `}
                     >
                       {chili.isWinner && (
-                        <span className="absolute -top-2 -right-2 text-lg">🏆</span>
+                        <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 rounded-full p-1 shadow-lg">
+                          <span className="text-lg">🏆</span>
+                        </div>
                       )}
-                      <span className="mr-2 text-xs opacity-75">#{index + 1}</span>
-                      <span className="font-semibold">{chili.chiliName}</span>
-                      <div className="ml-2 flex">
-                        {'🌶️'.repeat(Math.min(chili.spicinessLevel, 3))}
+
+                      <div className="flex items-start justify-between mb-3">
+                        <div className={`
+                          flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white shadow-md
+                          ${chili.isWinner ? 'bg-yellow-500' : 'bg-trinity-red'}
+                        `}>
+                          {index + 1}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(chili.spicinessLevel, 5) }, (_, i) => (
+                            <span key={i} className="text-lg">🌶️</span>
+                          ))}
+                        </div>
                       </div>
+
+                      <div className="space-y-2">
+                        <h3 className={`
+                          font-bold text-lg leading-tight group-hover:text-trinity-red transition-colors
+                          ${chili.isWinner ? 'text-yellow-900' : 'text-gray-800'}
+                        `}>
+                          {chili.chiliName || `Chili #${index + 1}`}
+                        </h3>
+
+                        <div className="flex items-center justify-between text-sm">
+                          <span className={`
+                            font-medium
+                            ${chili.isWinner ? 'text-yellow-800' : 'text-gray-600'}
+                          `}>
+                            Anonymous Chef
+                          </span>
+                          <span className={`
+                            px-2 py-1 rounded-full text-xs font-medium
+                            ${chili.isWinner
+                              ? 'bg-yellow-200 text-yellow-800'
+                              : 'bg-gray-100 text-gray-600'
+                            }
+                          `}>
+                            Level {chili.spicinessLevel}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-trinity-red/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                   ))}
                 </div>
 
-                {chilis.length > 8 && (
-                  <div className="text-center mt-4 text-xs text-gray-500">
-                    Scroll to see more chilis
+                {chilis.length > 6 && (
+                  <div className="text-center mt-4 text-sm text-gray-500 bg-gray-50 rounded-lg py-2">
+                    <span className="inline-flex items-center gap-2">
+                      <span>↕️</span>
+                      Scroll to see all {chilis.length} registered chilis
+                    </span>
                   </div>
                 )}
               </div>

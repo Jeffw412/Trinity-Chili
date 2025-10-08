@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // TEMPORARY SETUP RULES - Allow all operations for initial setup
+    // These should be replaced with production rules after setup is complete
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

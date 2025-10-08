@@ -7,7 +7,9 @@ import Link from 'next/link';
 export default function SetupPage() {
   const [loading, setLoading] = useState(true);
   const [setupLoading, setSetupLoading] = useState(false);
-  const [setupResult, setSetupResult] = useState<string | null>(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [setupResult, setSetupResult] = useState<{success: boolean; message: string; details: string[]} | null>(null);
+  const [adminResult, setAdminResult] = useState<{success: boolean; message: string; details: string[]} | null>(null);
 
   useEffect(() => {
     setLoading(false);
@@ -21,12 +23,37 @@ export default function SetupPage() {
       // Import the setup function dynamically to avoid build issues
       const { setupFirebaseDatabase } = await import('@/lib/setup');
       const result = await setupFirebaseDatabase();
-      setSetupResult(result.success ? 'Setup completed successfully!' : `Setup failed: ${result.message}`);
+      setSetupResult(result);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      setSetupResult(`Setup failed: ${errorMessage}`);
+      setSetupResult({
+        success: false,
+        message: `Setup failed: ${errorMessage}`,
+        details: []
+      });
     } finally {
       setSetupLoading(false);
+    }
+  };
+
+  const createAdmin = async () => {
+    setAdminLoading(true);
+    setAdminResult(null);
+
+    try {
+      // Import the admin creation function dynamically
+      const { createAdminUser } = await import('@/lib/setup');
+      const result = await createAdminUser();
+      setAdminResult(result);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setAdminResult({
+        success: false,
+        message: `Admin creation failed: ${errorMessage}`,
+        details: []
+      });
+    } finally {
+      setAdminLoading(false);
     }
   };
 
@@ -72,13 +99,22 @@ export default function SetupPage() {
             <li>Proper security permissions</li>
           </ul>
 
-          <button
-            onClick={runSetup}
-            disabled={setupLoading}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-semibold"
-          >
-            {setupLoading ? 'Setting up database...' : '🚀 Setup Database Now'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={runSetup}
+              disabled={setupLoading || adminLoading}
+              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-semibold"
+            >
+              {setupLoading ? 'Setting up database...' : '🚀 Setup Database Now'}
+            </button>
+            <button
+              onClick={createAdmin}
+              disabled={setupLoading || adminLoading}
+              className="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-semibold"
+            >
+              {adminLoading ? 'Creating admin...' : '👑 Create Admin User'}
+            </button>
+          </div>
         </div>
 
         {/* Users that will be created */}
@@ -86,17 +122,68 @@ export default function SetupPage() {
           <h3 className="text-xl font-bold text-gray-800 mb-4">User Accounts That Will Be Created</h3>
           <div className="space-y-2 text-sm">
             <div><strong>jeffw412@aol.com</strong> - Password: Chili2025 - Role: Judge</div>
-            <div><strong>admin@trinity.com</strong> - Password: Admin2025 - Role: Admin</div>
-            <div><strong>judge1@trinity.com</strong> - Password: Judge2025 - Role: Judge</div>
-            <div><strong>judge2@trinity.com</strong> - Password: Judge2025 - Role: Judge</div>
+            <div><strong>ckernyl@gmail.com</strong> - Password: Chili2025 - Role: Judge</div>
+            <div><strong>amberkern317@gmail.com</strong> - Password: Chili2025 - Role: Judge</div>
+            <div><strong>matthew.c.weiser@gmail.com</strong> - Password: Chili2025 - Role: Judge</div>
+            <div><strong>jenn.heidy@gmail.com</strong> - Password: Chili2025 - Role: Admin</div>
           </div>
         </div>
 
         {/* Setup Result */}
         {setupResult && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6 mb-6">
-            <h3 className="text-xl font-bold mb-4 text-blue-800">Setup Result</h3>
-            <p className="text-blue-700">{setupResult}</p>
+          <div className={`border rounded-lg shadow-md p-6 mb-6 ${
+            setupResult.success
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <h3 className={`text-xl font-bold mb-4 ${
+              setupResult.success ? 'text-green-800' : 'text-red-800'
+            }`}>Setup Result</h3>
+            <p className={`mb-4 ${
+              setupResult.success ? 'text-green-700' : 'text-red-700'
+            }`}>{setupResult.message}</p>
+
+            {setupResult.details && setupResult.details.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Details:</h4>
+                <div className="bg-white rounded p-3 max-h-64 overflow-y-auto">
+                  {setupResult.details.map((detail, index) => (
+                    <div key={index} className="text-sm mb-1 font-mono">
+                      {detail}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Admin Result */}
+        {adminResult && (
+          <div className={`border rounded-lg shadow-md p-6 mb-6 ${
+            adminResult.success
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <h3 className={`text-xl font-bold mb-4 ${
+              adminResult.success ? 'text-green-800' : 'text-red-800'
+            }`}>Admin Creation Result</h3>
+            <p className={`mb-4 ${
+              adminResult.success ? 'text-green-700' : 'text-red-700'
+            }`}>{adminResult.message}</p>
+
+            {adminResult.details && adminResult.details.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Details:</h4>
+                <div className="bg-white rounded p-3 max-h-64 overflow-y-auto">
+                  {adminResult.details.map((detail, index) => (
+                    <div key={index} className="text-sm mb-1 font-mono">
+                      {detail}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

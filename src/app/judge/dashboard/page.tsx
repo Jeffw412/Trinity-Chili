@@ -231,10 +231,7 @@ export default function JudgeDashboard() {
                       </div>
                     </div>
                     
-                    <div>
-                      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Ingredients</p>
-                      <p className="text-gray-700 text-sm leading-relaxed">{chili.ingredients}</p>
-                    </div>
+
                   </div>
                 );
               })}

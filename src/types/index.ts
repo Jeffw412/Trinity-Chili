@@ -1,8 +1,7 @@
 export interface Chili {
   id: string;
-  teamName: string;
+  competitorName: string;
   chiliName: string;
-  ingredients: string;
   spicinessLevel: number;
   createdAt: unknown;
   isWinner: boolean;
