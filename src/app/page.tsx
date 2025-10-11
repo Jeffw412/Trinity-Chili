@@ -101,7 +101,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-lg">CHAMPION ANNOUNCED!</h2>
             <div className="bg-white bg-opacity-90 rounded-xl p-6 mx-auto max-w-md">
               <p className="text-2xl font-bold text-gray-800">
-                <span className="text-trinity-red">Anonymous Chef</span>
+                <span className="text-trinity-red">{winner.competitorName}</span>
               </p>
               <p className="text-lg text-gray-600 mt-2">
                 wins with <strong className="text-trinity-blue">&quot;{winner.chiliName}&quot;</strong>!
@@ -249,7 +249,7 @@ export default function Home() {
                             font-medium
                             ${chili.isWinner ? 'text-yellow-800' : 'text-gray-600'}
                           `}>
-                            Anonymous Chef
+                            {chili.isWinner ? chili.competitorName : 'Anonymous Chef'}
                           </span>
                           <span className={`
                             px-2 py-1 rounded-full text-xs font-medium
