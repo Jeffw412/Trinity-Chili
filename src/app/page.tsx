@@ -4,12 +4,18 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Chili } from '@/types';
-import { getChilis } from '@/lib/database';
+import { getChilis, calculateResults } from '@/lib/database';
+
+interface ChiliWithResults extends Chili {
+  averageScore: number;
+  gradeCount: number;
+}
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Home() {
   const [chilis, setChilis] = useState<Chili[]>([]);
+  const [results, setResults] = useState<ChiliWithResults[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Form state
@@ -18,15 +24,19 @@ export default function Home() {
   const [spicinessLevel, setSpicinessLevel] = useState(1);
 
   useEffect(() => {
-    loadChilis();
+    loadData();
   }, []);
 
-  const loadChilis = async () => {
+  const loadData = async () => {
     try {
-      const chilisData = await getChilis();
+      const [chilisData, resultsData] = await Promise.all([
+        getChilis(),
+        calculateResults()
+      ]);
       setChilis(chilisData);
+      setResults(resultsData);
     } catch (error) {
-      console.error('Error loading chilis:', error);
+      console.error('Error loading data:', error);
     }
   };
 
@@ -48,8 +58,8 @@ export default function Home() {
       setChiliName('');
       setSpicinessLevel(1);
 
-      // Reload chilis
-      await loadChilis();
+      // Reload data
+      await loadData();
       alert('🌶️ Chili registered successfully!');
     } catch (error) {
       console.error('Error registering chili:', error);
@@ -62,6 +72,12 @@ export default function Home() {
 
 
   const winner = chilis.find(chili => chili.isWinner);
+  const topThree = results.slice(0, 3).filter(chili => chili.gradeCount > 0);
+
+  // Helper function to check if a chili is in top 3
+  const isInTopThree = (chiliId: string) => {
+    return topThree.some(topChili => topChili.id === chiliId);
+  };
 
   return (
     <div className="min-h-screen py-4 md:py-12">
@@ -106,6 +122,58 @@ export default function Home() {
               <p className="text-lg text-gray-600 mt-2">
                 wins with <strong className="text-trinity-blue">&quot;{winner.chiliName}&quot;</strong>!
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Top 3 Podium Display */}
+        {topThree.length >= 3 && (
+          <div className="card mb-12">
+            <div className="text-center mb-8">
+              <div className="text-4xl mb-4">🏆🥈🥉</div>
+              <h2 className="text-2xl font-bold mb-2">Final Rankings</h2>
+              <p className="text-gray-600">Top 3 Finishers</p>
+            </div>
+
+            <div className="flex justify-center items-end gap-4 max-w-4xl mx-auto">
+              {/* 2nd Place */}
+              <div className="text-center">
+                <div className="bg-gradient-to-t from-gray-300 to-gray-400 rounded-t-lg p-6 mb-4 shadow-lg border-2 border-gray-300">
+                  <div className="text-4xl mb-2">🥈</div>
+                  <div className="text-lg font-bold text-gray-800">{topThree[1]?.competitorName}</div>
+                  <div className="text-sm text-gray-600 mt-1">&quot;{topThree[1]?.chiliName}&quot;</div>
+                  <div className="text-xl font-bold text-gray-700 mt-2">{topThree[1]?.averageScore.toFixed(1)}/25</div>
+                </div>
+                <div className="bg-gray-400 text-white font-bold py-2 px-4 rounded-b-lg">
+                  2nd Place
+                </div>
+              </div>
+
+              {/* 1st Place */}
+              <div className="text-center">
+                <div className="bg-gradient-to-t from-yellow-300 to-yellow-400 rounded-t-lg p-8 mb-4 shadow-xl border-4 border-yellow-400 transform scale-110">
+                  <div className="text-6xl mb-3">🏆</div>
+                  <div className="text-xl font-bold text-yellow-900">{topThree[0]?.competitorName}</div>
+                  <div className="text-sm text-yellow-800 mt-1">&quot;{topThree[0]?.chiliName}&quot;</div>
+                  <div className="text-2xl font-bold text-yellow-900 mt-3">{topThree[0]?.averageScore.toFixed(1)}/25</div>
+                </div>
+                <div className="bg-yellow-500 text-yellow-900 font-bold py-3 px-6 rounded-b-lg text-lg">
+                  CHAMPION
+                </div>
+              </div>
+
+              {/* 3rd Place */}
+              <div className="text-center">
+                <div className="bg-gradient-to-t from-amber-600 to-amber-700 rounded-t-lg p-6 mb-4 shadow-lg border-2 border-amber-600">
+                  <div className="text-4xl mb-2">🥉</div>
+                  <div className="text-lg font-bold text-amber-100">{topThree[2]?.competitorName}</div>
+                  <div className="text-sm text-amber-200 mt-1">&quot;{topThree[2]?.chiliName}&quot;</div>
+                  <div className="text-xl font-bold text-amber-100 mt-2">{topThree[2]?.averageScore.toFixed(1)}/25</div>
+                </div>
+                <div className="bg-amber-700 text-amber-100 font-bold py-2 px-4 rounded-b-lg">
+                  3rd Place
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -249,7 +317,7 @@ export default function Home() {
                             font-medium
                             ${chili.isWinner ? 'text-yellow-800' : 'text-gray-600'}
                           `}>
-                            {chili.isWinner ? chili.competitorName : 'Anonymous Chef'}
+                            {isInTopThree(chili.id) ? chili.competitorName : 'Anonymous Chef'}
                           </span>
                           <span className={`
                             px-2 py-1 rounded-full text-xs font-medium
