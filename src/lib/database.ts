@@ -146,15 +146,34 @@ export const calculateResults = async () => {
 
 export const declareWinner = async (chiliId: string) => {
   try {
-    // First, remove winner status from all chilis
+    // Calculate results to get the top 3
+    const results = await calculateResults();
+
+    // Get the top 3 chilis (only those with grades)
+    const topThree = results.filter(chili => chili.gradeCount > 0).slice(0, 3);
+
+    if (topThree.length < 3) {
+      throw new Error('Not enough graded chilis to declare top 3 places');
+    }
+
+    // First, clear all placement flags from all chilis
     const chilis = await getChilis();
-    const updatePromises = chilis.map(chili => 
-      updateDoc(doc(db, 'chilis', chili.id), { isWinner: false })
+    const clearPromises = chilis.map(chili =>
+      updateDoc(doc(db, 'chilis', chili.id), {
+        isWinner: false,
+        isSecondPlace: false,
+        isThirdPlace: false
+      })
     );
-    await Promise.all(updatePromises);
-    
-    // Then set the winner
-    await updateDoc(doc(db, 'chilis', chiliId), { isWinner: true });
+    await Promise.all(clearPromises);
+
+    // Then set the top 3 placements
+    const placementPromises = [
+      updateDoc(doc(db, 'chilis', topThree[0].id), { isWinner: true }),
+      updateDoc(doc(db, 'chilis', topThree[1].id), { isSecondPlace: true }),
+      updateDoc(doc(db, 'chilis', topThree[2].id), { isThirdPlace: true })
+    ];
+    await Promise.all(placementPromises);
   } catch (error) {
     console.error('Error declaring winner:', error);
     throw error;

@@ -5,6 +5,8 @@ export interface Chili {
   spicinessLevel: number;
   createdAt: unknown;
   isWinner: boolean;
+  isSecondPlace?: boolean;
+  isThirdPlace?: boolean;
 }
 
 export interface Grade {
