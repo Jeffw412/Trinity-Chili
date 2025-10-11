@@ -140,6 +140,29 @@ export default function AdminDashboard() {
     return grades.filter(grade => grade.chiliId === chiliId);
   };
 
+  const getFullyGradedChilisCount = () => {
+    // Get the number of active judges (unique judge IDs from grades)
+    const activeJudges = new Set(grades.map(grade => grade.judgeId));
+    const totalActiveJudges = activeJudges.size;
+
+    if (totalActiveJudges === 0) return 0;
+
+    // Count chilis that have been graded by all active judges
+    let fullyGradedCount = 0;
+
+    chilis.forEach(chili => {
+      const chiliGrades = getGradesForChili(chili.id);
+      const uniqueJudgesForChili = new Set(chiliGrades.map(grade => grade.judgeId));
+
+      // If this chili has grades from all active judges, count it
+      if (uniqueJudgesForChili.size === totalActiveJudges) {
+        fullyGradedCount++;
+      }
+    });
+
+    return fullyGradedCount;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -214,7 +237,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'bg-trinity-red text-white shadow-lg'
+                    ? 'bg-[var(--trinity-red)] text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -226,7 +249,7 @@ export default function AdminDashboard() {
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <div className="card bg-blue-50 border-blue-200">
               <div className="text-center">
                 <div className="text-4xl mb-2">🌶️</div>
@@ -248,6 +271,13 @@ export default function AdminDashboard() {
                   {new Set(grades.map(g => g.judgeId)).size}
                 </div>
                 <p className="text-purple-800 font-medium">Active Judges</p>
+              </div>
+            </div>
+            <div className="card bg-orange-50 border-orange-200">
+              <div className="text-center">
+                <div className="text-4xl mb-2">✅</div>
+                <div className="text-3xl font-bold text-orange-600">{getFullyGradedChilisCount()}</div>
+                <p className="text-orange-800 font-medium">Fully Graded</p>
               </div>
             </div>
             <div className="card bg-yellow-50 border-yellow-200">
