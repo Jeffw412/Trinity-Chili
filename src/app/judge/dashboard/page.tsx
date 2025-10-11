@@ -120,7 +120,29 @@ export default function JudgeDashboard() {
   };
 
   const getGradeForChili = (chiliId: string) => {
-    return grades.find(grade => grade.chiliId === chiliId);
+    // Only return grades for chilis that still exist
+    const existingChiliIds = new Set(chilis.map(chili => chili.id));
+    const validGrades = grades.filter(grade => existingChiliIds.has(grade.chiliId));
+    return validGrades.find(grade => grade.chiliId === chiliId);
+  };
+
+  const getGradingStats = () => {
+    // Get the set of existing chili IDs
+    const existingChiliIds = new Set(chilis.map(chili => chili.id));
+
+    // Filter grades to only include those for chilis that still exist
+    const validGrades = grades.filter(grade => existingChiliIds.has(grade.chiliId));
+
+    // Get unique chilis that have been graded by this judge (only valid ones)
+    const gradedChiliIds = new Set(validGrades.map(grade => grade.chiliId));
+    const gradedCount = gradedChiliIds.size;
+    const remainingCount = chilis.length - gradedCount;
+
+    return {
+      total: chilis.length,
+      graded: gradedCount,
+      remaining: remainingCount
+    };
   };
 
   const getTotalScore = () => {
@@ -266,20 +288,25 @@ export default function JudgeDashboard() {
             <p className="text-gray-600">Track your judging progress</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="bg-blue-50 p-6 rounded-xl">
-              <div className="text-3xl font-bold text-blue-600">{chilis.length}</div>
-              <p className="text-blue-800 font-medium">Total Chilis</p>
-            </div>
-            <div className="bg-green-50 p-6 rounded-xl">
-              <div className="text-3xl font-bold text-green-600">{grades.length}</div>
-              <p className="text-green-800 font-medium">Graded</p>
-            </div>
-            <div className="bg-orange-50 p-6 rounded-xl">
-              <div className="text-3xl font-bold text-orange-600">{chilis.length - grades.length}</div>
-              <p className="text-orange-800 font-medium">Remaining</p>
-            </div>
-          </div>
+          {(() => {
+            const stats = getGradingStats();
+            return (
+              <div className="grid md:grid-cols-3 gap-6 text-center">
+                <div className="bg-blue-50 p-6 rounded-xl">
+                  <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
+                  <p className="text-blue-800 font-medium">Total Chilis</p>
+                </div>
+                <div className="bg-green-50 p-6 rounded-xl">
+                  <div className="text-3xl font-bold text-green-600">{stats.graded}</div>
+                  <p className="text-green-800 font-medium">Graded</p>
+                </div>
+                <div className="bg-orange-50 p-6 rounded-xl">
+                  <div className="text-3xl font-bold text-orange-600">{stats.remaining}</div>
+                  <p className="text-orange-800 font-medium">Remaining</p>
+                </div>
+              </div>
+            );
+          })()}
         </div>
         </div>
       </div>
